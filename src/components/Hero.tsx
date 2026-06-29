@@ -506,13 +506,12 @@ export default function Hero() {
           transition={{ ...transitionSettings, delay: 0.8 }}
         >
           <p>
-            OPEN TO<br />
-            INTERNSHIP &amp;<br />
-            FULL-TIME ROLES
+            M.S. CS · AI<br />
+            ILLINOIS TECH
           </p>
           <p className="meta-gap">
-            BASED IN<br />
-            CHICAGO, IL
+            SPRINGER<br />
+            SCHOLAR
           </p>
         </motion.div>
 

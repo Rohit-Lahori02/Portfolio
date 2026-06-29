@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -10,7 +10,6 @@ import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
-import GuestBook from './pages/GuestBook';
 import Loader from './components/Loader';
 
 import CustomCursor from './components/CustomCursor';
@@ -50,7 +49,7 @@ function App() {
       touchMultiplier: 2,
     });
 
-    function raf(time) {
+    function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
@@ -59,7 +58,7 @@ function App() {
 
     lenis.on('scroll', ScrollTrigger.update);
 
-    const tickerCallback = (time) => {
+    const tickerCallback = (time: number) => {
       lenis.raf(time * 1000);
     };
 
@@ -103,10 +102,9 @@ function App() {
                 <Transition />
 
                 <Routes>
-                  <Route path="/" element={<Home startAnimation={showContent} />} />
+                  <Route path="/" element={<Home />} />
                   <Route path="/projects" element={<Projects />} />
                   <Route path="/projects/:id" element={<ProjectDetail />} />
-                  <Route path="/guestbook" element={<GuestBook />} />
                 </Routes>
               </div>
             </div>

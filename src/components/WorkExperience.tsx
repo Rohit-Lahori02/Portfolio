@@ -115,7 +115,7 @@ const WorkExperience: React.FC = () => {
           <ScrollRevealText text="WORK" />
         </h2>
         <span className="text-[14vw] md:text-[8vw] leading-[0.85] font-bold uppercase tracking-tighter block">
-          <ScrollRevealText text="EXPERIENCE_" />
+          <ScrollRevealText text="EXPERIENCE" />
         </span>
       </div>
 

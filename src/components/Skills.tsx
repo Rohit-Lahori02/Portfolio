@@ -142,7 +142,7 @@ const Skills: React.FC = () => {
         </h2>
         <div className="flex flex-col md:flex-row justify-between items-end gap-6">
           <span className="text-[14vw] md:text-[8vw] leading-[0.85] font-bold uppercase tracking-tighter text-black dark:text-white block">
-            <ScrollRevealText text="STACK_" />
+            <ScrollRevealText text="STACK" />
           </span>
           <p className="font-mono text-sm max-w-xs text-gray-500 text-right pb-2">
             // SYSTEM_INVENTORY_V2.2<br />

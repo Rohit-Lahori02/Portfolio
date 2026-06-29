@@ -441,7 +441,7 @@ const DevActivity: React.FC = () => {
               <span className="font-mono text-xs uppercase tracking-widest text-red-500">Activity // Log</span>
             </div>
             <h2 className="text-[15vw] md:text-[8vw] leading-[0.8] font-bold uppercase tracking-tighter text-transparent text-stroke-responsive opacity-60 select-none pointer-events-none">
-              <ScrollRevealText text="CODE_BASE " />
+              <ScrollRevealText text="CODE BASE" />
             </h2>
           </div>
           <div className="md:col-span-4 flex flex-col justify-end">

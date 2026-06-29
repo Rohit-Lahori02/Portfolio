@@ -101,7 +101,7 @@ const Projects: React.FC = () => {
           <ScrollRevealText text="SELECTED" />
         </h2>
         <span className="text-[14vw] md:text-[8vw] leading-[0.85] font-bold uppercase tracking-tighter block">
-          <ScrollRevealText text="WORKS_" />
+          <ScrollRevealText text="WORKS" />
         </span>
       </div>
 

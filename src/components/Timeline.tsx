@@ -145,11 +145,11 @@ const Timeline: React.FC = () => {
                         {/* Description (Left Side now) */}
                         <p className="font-mono text-sm max-w-sm text-neutral-500 dark:text-neutral-400 text-left order-2 md:order-1 self-start md:self-end pb-2">
                              // SYSTEM_LOGS_V3.0<br />
-                            COMMITS_&_MILESTONES
+                            COMMITS & MILESTONES
                         </p>
 
                         <span className="text-[15vw] md:text-[8vw] leading-[0.8] font-bold uppercase tracking-tighter text-black dark:text-white order-1 md:order-2">
-                            <ScrollRevealText text="EVOLUTION_" />
+                            <ScrollRevealText text="EVOLUTION" />
                         </span>
                     </div>
                 </div>
