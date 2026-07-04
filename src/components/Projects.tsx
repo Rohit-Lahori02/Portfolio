@@ -251,15 +251,6 @@ const Projects: React.FC = () => {
                     </a>
                   </div>
 
-                  {current.paper && (
-                    <PDFViewer
-                      url={current.paper}
-                      title="Data Analysis and Insight Generation with Queryable Knowledge Graphs"
-                      isOpen={pdfOpen}
-                      onClose={() => setPdfOpen(false)}
-                      downloadName="knowledge-graph-paper.pdf"
-                    />
-                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -305,6 +296,14 @@ const Projects: React.FC = () => {
 
         </div>
       </div>
+
+      <PDFViewer
+        url="/knowledge-graph-paper.pdf"
+        title="Data Analysis and Insight Generation with Queryable Knowledge Graphs"
+        isOpen={pdfOpen}
+        onClose={() => setPdfOpen(false)}
+        downloadName="knowledge-graph-paper.pdf"
+      />
     </section>
   );
 };
