@@ -38,7 +38,7 @@ export const projects: Project[] = [
         status: 'Live',
         image: '/guidera-mockup.png',
         github: 'https://github.com/Rohit-Lahori02',
-        live: null,
+        live: 'https://guidera.tilantra.com/',
         impact: ['70% Cost Reduction', '95% Accuracy', '50+ LLMs Supported', 'GDPR/HIPAA Compliant'],
         challenges: [
             {
@@ -208,7 +208,7 @@ export const projects: Project[] = [
         status: 'Shipped',
         image: '/capsule-hub-mockup.png',
         github: 'https://github.com/Rohit-Lahori02',
-        live: null,
+        live: 'https://capsulehub.ai/',
         impact: ['Cross-Platform Context', 'Team Collaboration', 'Zero Copy-Paste', 'Version Control'],
         challenges: [
             {

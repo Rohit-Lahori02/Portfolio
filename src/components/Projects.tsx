@@ -13,7 +13,7 @@ const projects = [
     description:
       'Production-grade LLM routing platform for 50+ models. A custom PyTorch 3-layer attention transformer classifies prompts and routes to the optimal model — achieving 70% inference cost reduction at 95% accuracy, with a full multimodal pipeline and GDPR/HIPAA compliance engine.',
     github: 'https://github.com/Rohit-Lahori02',
-    live: null,
+    live: 'https://guidera.tilantra.com/',
     gradientFrom: '#1e1b4b',
     gradientTo: '#312e81',
     accentColor: '#818cf8',
@@ -29,7 +29,7 @@ const projects = [
     description:
       'Cross-platform AI context manager shipped as a Chrome extension. Captures and injects conversation context across ChatGPT, Claude, Gemini, and Gmail with zero copy-paste. FastAPI + MongoDB backend with JWT/OAuth2 and team-scoped RBAC.',
     github: 'https://github.com/Rohit-Lahori02',
-    live: null,
+    live: 'https://capsulehub.ai/',
     gradientFrom: '#431407',
     gradientTo: '#7c2d12',
     accentColor: '#fb923c',

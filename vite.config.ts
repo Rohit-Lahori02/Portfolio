@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        navigateFallbackDenylist: [/\.pdf$/],
+      },
       manifest: {
         name: 'Nishant Portfolio',
         short_name: 'Portfolio',
