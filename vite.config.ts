@@ -6,32 +6,13 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [
     react(),
+    // Self-destroying service worker: unregisters the old PWA worker on every
+    // visitor's next visit, clears its caches, and disables offline caching so
+    // each deploy is visible on first load. Do not remove until this has shipped.
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: {
-        navigateFallbackDenylist: [/\.pdf$/],
-      },
-      manifest: {
-        name: 'Nishant Portfolio',
-        short_name: 'Portfolio',
-        description: 'Nishant Portfolio Progressive Web App',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
-        display: 'standalone',
-        start_url: '/',
-        icons: [
-          {
-            src: '/public/Logo.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: '/public/Logo.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-        ],
-      },
+      selfDestroying: true,
+      manifest: false,
     }),
   ],
   optimizeDeps: {
