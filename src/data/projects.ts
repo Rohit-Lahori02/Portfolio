@@ -36,7 +36,7 @@ export const projects: Project[] = [
         tech: ['PyTorch', 'Python', 'CLIP', 'OCR', 'DenseCap', 'GPT-4.1', 'FastAPI', 'Docker'],
         year: '2025',
         status: 'Live',
-        image: '/guidera-mockup.png',
+        image: '/guidera-viz.png',
         github: 'https://github.com/Rohit-Lahori02',
         live: 'https://guidera.tilantra.com/',
         impact: ['70% Cost Reduction', '95% Accuracy', '50+ LLMs Supported', 'GDPR/HIPAA Compliant'],
@@ -206,7 +206,7 @@ export const projects: Project[] = [
         tech: ['Chrome Extension', 'FastAPI', 'MongoDB', 'JWT', 'OAuth2', 'Python', 'JavaScript'],
         year: '2024',
         status: 'Shipped',
-        image: '/capsule-hub-mockup.png',
+        image: '/capsule-hub-viz.png',
         github: 'https://github.com/Rohit-Lahori02',
         live: 'https://capsulehub.ai/',
         impact: ['Cross-Platform Context', 'Team Collaboration', 'Zero Copy-Paste', 'Version Control'],
@@ -369,6 +369,531 @@ export const projects: Project[] = [
     },
     {
         id: '03',
+        title: 'Jokebox',
+        category: 'Voice AI Agent',
+        description: 'AI stand-up comedian with a full-duplex voice loop, live reaction scoring, and an auditable joke archive.',
+        longDescription: 'Jokebox is a four-component system (voice Joker, Librarian, archive API, Viewer) that performs multi-joke sets over live audio with barge-in, scores listener reactions, and files every joke with a full decision trace. The real-time voice agent runs on self-hosted LiveKit with Deepgram STT/TTS, Silero VAD, and a local end-of-turn model, reaching a 1.6 s median listener-to-response latency with per-stage p50/p95 latency tables. A provider-agnostic LLM layer runs the whole stack on either Gemini or Claude from a single API key. The Librarian pre-writes tiered material in the background, scores reactions on a calibrated 0-10 rubric, and classifies jokes into a Box-Cabinet-Drawer-File hierarchy backed by a FastAPI + Postgres archive with OpenAPI docs, JSON/CSV export, and structural-compliance validators. Delivered in two milestones against a written brief with 96 tests under GitHub Actions CI and 38 logged architecture decisions.',
+        tech: ['Python', 'FastAPI', 'PostgreSQL', 'LiveKit', 'Deepgram', 'Silero VAD', 'SQLAlchemy', 'Next.js', 'React', 'Gemini', 'Claude'],
+        year: '2026',
+        status: 'Shipped',
+        image: '/jokebox-viz.png',
+        github: 'https://github.com/Rohit-Lahori02/Jokebox',
+        live: 'https://drive.google.com/file/d/1CJbUMCm-fT1j6Orc-w144jhQYyUafWY6/view?usp=sharing',
+        impact: ['1.6s Median Response Latency', '50% Fewer Judge Calls', 'Gemini or Claude, One Key', '96 Tests Under CI'],
+        challenges: [
+            {
+                title: '9-Second VAD Stall From Blocking SDK Retries',
+                description: 'JSON-mode LLM calls with SDK-level retries blocked the asyncio event loop, freezing voice activity detection and barge-in for up to 9 seconds mid-set.',
+                solution: 'Instrumented every turn to attribute latency per stage, then moved JSON-mode calls off the event loop behind a provider-agnostic LLM layer with per-slot model defaults and name-based routing.'
+            },
+            {
+                title: 'Judge Traffic on Every Reaction',
+                description: 'Scoring a reaction and filing the joke into the hierarchy were separate LLM calls, doubling judge traffic and adding latency between jokes.',
+                solution: 'Merged scoring and filing into a single call with a calibrated 0-10 rubric, reuse-before-create hierarchy rules, and quarantine on judge failure, cutting judge traffic in half.'
+            },
+            {
+                title: 'Tool Narration Leaking Into Speech',
+                description: 'The model occasionally narrated planner or tool activity, which the TTS stage would read aloud to the listener.',
+                solution: 'Added a regex guard in front of TTS and moved set structure into a deterministic planner (opener, ride, recovery, groaner, callback, closer) that records each slot rationale in provenance.'
+            }
+        ],
+        size: 'medium',
+        color: 'from-fuchsia-500/20 to-pink-500/20',
+        architecture: {
+            hld: `flowchart TB
+    L["Listener\nBrowser Mic + Speaker"]
+    LK["LiveKit SFU\nSelf-hosted WebRTC"]
+    JK["Joker Voice Agent\nVAD + STT + EOT + LLM + TTS"]
+    LIB["Librarian Service\nPre-writer + Judge + Filer"]
+    API["Archive API\nFastAPI + SQLAlchemy async"]
+    PG[("PostgreSQL\nBox / Cabinet / Drawer / File")]
+    VW["Viewer\nNext.js + React"]
+    LLM["LLM Provider\nGemini | Claude"]
+
+    L <-->|Live audio| LK
+    LK <-->|Audio tracks| JK
+    JK -->|Joke request / reaction| LIB
+    LIB -->|Tiered material / score| JK
+    JK --> LLM
+    LIB --> LLM
+    LIB -->|File joke + trace| API
+    API --> PG
+    VW -->|Query hierarchy| API
+    JK -->|Live transcript| VW`,
+
+            lld: `flowchart LR
+    subgraph Voice["Voice Pipeline"]
+        VAD["Silero VAD\nbarge-in detect"]
+        STT["Deepgram STT\nstreaming"]
+        EOT["End-of-Turn\nlocal model"]
+        TTS["Deepgram TTS\nnarration filter"]
+    end
+    subgraph Planner["Set Planner"]
+        SP["SlotPlanner\nopener ride recovery\ngroaner callback closer"]
+        RT["ReactionTracker\ngenre + tier adapt"]
+    end
+    subgraph Librarian
+        PW["PreWriter\nbackground tiers"]
+        JF["JudgeFiler\nrubric 0-10\nhierarchy classify"]
+        QR["Quarantine\non judge failure"]
+    end
+    subgraph Archive
+        UP["PathUpsert\nON CONFLICT"]
+        VL["Validators\ncompliance state"]
+        EX["Export\nJSON / CSV / stats"]
+    end
+
+    VAD --> STT
+    STT --> EOT
+    EOT --> SP
+    RT --> SP
+    SP --> TTS
+    PW --> SP
+    STT --> JF
+    JF --> RT
+    JF --> QR
+    JF --> UP
+    UP --> VL
+    VL --> EX`,
+
+            classDiagram: `classDiagram
+    class JokerAgent {
+        +LiveKitSession session
+        +SetPlanner planner
+        +ReactionTracker tracker
+        +on_user_turn(transcript)
+        +perform_slot(slot)
+        +handle_barge_in()
+        +filter_narration(text)
+    }
+    class SetPlanner {
+        +Slot[] slots
+        +int position
+        +next_slot(reaction)
+        +adapt_genre_tier()
+        +record_rationale()
+    }
+    class Librarian {
+        +LLMProvider judge
+        +ArchiveClient archive
+        +prewrite_tiers(genre)
+        +score_and_file(joke, reaction)
+        +quarantine(joke, reason)
+    }
+    class LLMProvider {
+        +String provider
+        +String api_key
+        +Map slot_defaults
+        +complete(prompt, slot)
+        +complete_json(prompt, schema)
+        +route_by_name(model)
+    }
+    class ArchiveClient {
+        +String base_url
+        +upsert_path(box, cabinet, drawer, file)
+        +get_hierarchy()
+        +funniest_in_genre(genre)
+        +export(format)
+    }
+    JokerAgent --> SetPlanner : drives
+    JokerAgent --> Librarian : requests material
+    Librarian --> LLMProvider : judges with
+    Librarian --> ArchiveClient : files to`,
+
+            dataFlow: `sequenceDiagram
+    participant L as Listener
+    participant LK as LiveKit
+    participant JK as Joker Agent
+    participant LB as Librarian
+    participant LLM as Gemini / Claude
+    participant AR as Archive API
+    participant VW as Viewer
+
+    L->>LK: speaks (audio)
+    LK->>JK: audio track
+    JK->>JK: VAD -> STT -> end-of-turn
+    JK->>LB: request material(slot, genre, tier)
+    LB-->>JK: pre-written joke or generate
+    JK->>LLM: generate joke (JSON mode, off loop)
+    LLM-->>JK: joke text
+    JK->>LK: TTS audio (narration filtered)
+    LK->>L: joke playback
+    L->>LK: reaction (laugh / groan / silence)
+    LK->>JK: reaction transcript
+    JK->>LB: score_and_file(joke, reaction)
+    LB->>LLM: single judge call (score + classify)
+    LLM-->>LB: score 0-10 + Box/Cabinet/Drawer/File
+    LB->>AR: PUT path upsert + decision trace
+    AR-->>LB: file id + compliance state
+    JK->>VW: live transcript event
+    VW->>AR: GET hierarchy + trace`,
+
+            infrastructure: `flowchart TB
+    subgraph Browser["Listener Browser"]
+        MIC["Web Audio\nMic + Speaker"]
+        VW["Viewer\nNext.js :3000"]
+    end
+    subgraph Docker["Docker Compose"]
+        LK["LiveKit Server\nWebRTC SFU"]
+        JK["Joker Worker\nlivekit-agents"]
+        LB["Librarian Worker\nbackground pre-writer"]
+        API["Archive API\nFastAPI :8000"]
+        PG[("PostgreSQL")]
+    end
+    subgraph External["External APIs"]
+        DG["Deepgram\nSTT + TTS"]
+        GM["Google Gemini"]
+        AN["Anthropic Claude"]
+    end
+    CI["GitHub Actions\n96 tests + real Postgres"]
+
+    MIC <-->|WebRTC| LK
+    LK <--> JK
+    JK --> DG
+    JK --> LB
+    LB --> API
+    API --> PG
+    VW --> API
+    JK -.->|single key| GM
+    JK -.->|single key| AN
+    LB -.-> GM
+    LB -.-> AN
+    CI -.-> API`,
+
+            erDiagram: `erDiagram
+    USER {
+        uuid id PK
+        string handle
+        timestamp created_at
+    }
+    BOX {
+        uuid id PK
+        string name
+        string genre
+        boolean compliant
+    }
+    CABINET {
+        uuid id PK
+        uuid box_id FK
+        string name
+        boolean compliant
+    }
+    DRAWER {
+        uuid id PK
+        uuid cabinet_id FK
+        string name
+        boolean compliant
+    }
+    JOKE_FILE {
+        uuid id PK
+        uuid drawer_id FK
+        uuid author_id FK
+        text setup
+        text punchline
+        string tier
+        float score
+        string path
+        boolean quarantined
+        timestamp created_at
+    }
+    DECISION_TRACE {
+        uuid id PK
+        uuid joke_id FK
+        string slot
+        string rationale
+        string judge_model
+        jsonb reaction
+        jsonb classification
+    }
+    BOX ||--o{ CABINET : contains
+    CABINET ||--o{ DRAWER : contains
+    DRAWER ||--o{ JOKE_FILE : contains
+    USER ||--o{ JOKE_FILE : authors
+    JOKE_FILE ||--|| DECISION_TRACE : explained_by`
+        }
+    },
+    {
+        id: '04',
+        title: 'Muscle Memory',
+        category: 'Legacy Banking UI Automation',
+        description: 'An LLM discovers a workflow on a legacy banking UI once, then compiles it into a typed artifact that replays with no model in the loop.',
+        longDescription: 'An end-to-end computer-use system for legacy, API-less back-office banking web apps. An LLM discovers a workflow once, then the system compiles it into a typed, versioned capability artifact that replays deterministically with no model in the loop: replay cost is zero, and a 9-step flow was recorded for under 25k tokens on a free-tier model. The artifact is an agent-callable contract with typed inputs and outputs, secret references instead of credentials, a ranked locator-strategy chain per step with recorded rationale, and a failure taxonomy that separates business outcomes, recoverable conditions, and hard failures with distinct exit codes. A text-based perception layer over the DOM infers accessible names for unlabeled controls and resolves targets geometrically, so recordings survive relabeled tenants. Human-in-the-loop handoff runs on a shared live browser session with token-based control transfer, and safety is enforced in code through origin and action allowlists, risk classification, and a redaction layer, backed by 131 automated tests including real-browser integration tests.',
+        tech: ['Python', 'Playwright', 'Pydantic', 'FastAPI', 'Claude', 'OpenAI-compatible APIs', 'Chrome DevTools Protocol', 'Docker'],
+        year: '2026',
+        status: 'Shipped',
+        image: '/bank-automation-viz.png',
+        github: 'https://github.com/Rohit-Lahori02/Bank-Automation-System',
+        live: 'https://drive.google.com/file/d/1L_14wW3JRIOPHYuQgJx3goDV0YXXcNbB/view?usp=sharing',
+        impact: ['Zero-Cost Deterministic Replay', '9-Step Flow Under 25k Tokens', '131 Automated Tests', 'Human-in-the-Loop Handoff'],
+        challenges: [
+            {
+                title: 'Legacy Controls With No Labels or Stable Selectors',
+                description: 'The target app had unlabeled inputs, generated IDs, and tenant-specific labels, so any single locator strategy broke on the next tenant.',
+                solution: 'Built a text-based perception layer that infers accessible names and resolves targets geometrically, plus a ranked locator chain per step. A relabeled tenant replayed on structural fallbacks with a drift signal, then cleanly with a six-line overlay instead of a re-recording.'
+            },
+            {
+                title: 'Irreversible Actions Without a Human Gate',
+                description: 'Steps like posting a transaction must never be executed by automation alone, but stopping the run loses browser state.',
+                solution: 'Policy holds irreversible actions and transfers control via a token on the same live browser session. A human operates it through an operator console or CDP, every action is captured and redacted, and automation resumes once the expected on-screen state is verified.'
+            },
+            {
+                title: 'Keeping Credentials and Regulated Data Out of Artifacts',
+                description: 'Recordings, logs, screenshots, and Playwright traces all naturally capture whatever is on screen, including credentials and account data.',
+                solution: 'Artifacts store secret references instead of values, a redaction layer scrubs logs and captures, and origin and action allowlists are checked in code before every action with block, escalate, or flag risk modes.'
+            }
+        ],
+        size: 'large',
+        color: 'from-cyan-500/20 to-teal-500/20',
+        architecture: {
+            hld: `flowchart TB
+    CALLER["Caller\nAgent or Operator"]
+    DISC["Discovery Loop\nLLM + Playwright (once)"]
+    COMP["Capability Compiler\nPydantic schema"]
+    ART[("Capability Artifact\ntyped, versioned JSON")]
+    REPLAY["Replay Engine\nno model in the loop"]
+    PERC["Perception Layer\nDOM text + geometry"]
+    POL["Policy Engine\nallowlists + risk class"]
+    HAND["Handoff Controller\nshared browser session"]
+    RED["Redaction Layer\nlogs + captures"]
+    APP["Legacy Banking App\nAPI-less web UI"]
+
+    CALLER -->|Record workflow| DISC
+    DISC --> PERC
+    DISC --> COMP
+    COMP --> ART
+    CALLER -->|Run artifact + inputs| REPLAY
+    ART --> REPLAY
+    REPLAY --> PERC
+    PERC <--> APP
+    REPLAY --> POL
+    POL -->|hold| HAND
+    HAND <--> APP
+    REPLAY --> RED
+    HAND --> RED`,
+
+            lld: `flowchart LR
+    subgraph Perception
+        DT["DOMTextLayer\nsnapshot + roles"]
+        AN["NameInferer\naccessible names"]
+        GR["GeoResolver\nspatial targeting"]
+    end
+    subgraph AgentLoop["Discovery Loop"]
+        AP["ActionProtocol\nJSON actions"]
+        PG["PolicyGate\npre-action check"]
+        NP["NoProgressDetector"]
+        CW["SlidingContext\nflat per-step cost"]
+    end
+    subgraph Compiler
+        LC["LocatorChain\nranked strategies"]
+        RA["Rationale\nper-step"]
+        SV["SchemaValidator\nPydantic"]
+    end
+    subgraph Replay
+        SR["StepRunner\ndeterministic"]
+        DD["DriftDetector\nfallback signal"]
+        OV["OverlayMerge\ntenant patch"]
+        FT["FailureTaxonomy\nexit codes"]
+    end
+
+    DT --> AN
+    AN --> GR
+    GR --> AP
+    AP --> PG
+    PG --> NP
+    NP --> CW
+    CW --> LC
+    LC --> RA
+    RA --> SV
+    SV --> SR
+    SR --> DD
+    DD --> OV
+    SR --> FT`,
+
+            classDiagram: `classDiagram
+    class CapabilityArtifact {
+        +String name
+        +String version
+        +Map inputs_schema
+        +Map outputs_schema
+        +SecretRef[] secrets
+        +Step[] steps
+        +validate()
+        +apply_overlay(overlay)
+    }
+    class Step {
+        +String action
+        +LocatorStrategy[] locators
+        +String rationale
+        +String expected_state
+        +boolean irreversible
+        +resolve(page)
+    }
+    class ReplayEngine {
+        +PolicyEngine policy
+        +Perception perception
+        +run(artifact, inputs)
+        +detect_drift(step)
+        +classify_failure(err)
+    }
+    class PolicyEngine {
+        +String[] origin_allowlist
+        +String[] action_allowlist
+        +check(action, url)
+        +classify_risk(step)
+    }
+    class HandoffController {
+        +String token
+        +BrowserSession session
+        +hold(step)
+        +transfer_to_operator()
+        +verify_state(expected)
+        +resume()
+    }
+    class Redactor {
+        +Pattern[] rules
+        +redact_log(entry)
+        +redact_capture(image)
+    }
+    CapabilityArtifact --> Step : contains
+    ReplayEngine --> CapabilityArtifact : executes
+    ReplayEngine --> PolicyEngine : gated by
+    ReplayEngine --> HandoffController : escalates to
+    ReplayEngine --> Redactor : writes through`,
+
+            dataFlow: `sequenceDiagram
+    participant C as Caller
+    participant D as Discovery Loop
+    participant LLM as LLM (dev: OpenAI-compat, prod: Claude)
+    participant P as Perception
+    participant APP as Legacy App
+    participant CM as Compiler
+    participant R as Replay Engine
+    participant H as Operator
+
+    Note over C,CM: Phase 1 - discover once
+    C->>D: record(goal, allowlists)
+    loop each step
+        D->>P: snapshot DOM as text
+        P-->>D: named controls + geometry
+        D->>LLM: next action? (JSON protocol)
+        LLM-->>D: action
+        D->>D: policy gate + no-progress check
+        D->>APP: Playwright action
+    end
+    D->>CM: trajectory
+    CM-->>C: artifact v1 (typed, versioned)
+
+    Note over C,H: Phase 2 - replay, no model
+    C->>R: run(artifact, inputs, secret refs)
+    R->>P: resolve locator chain
+    P->>APP: act
+    APP-->>R: observed state
+    alt drift detected
+        R->>R: structural fallback + drift signal
+    end
+    alt irreversible step
+        R->>H: hold + transfer token
+        H->>APP: operate same session
+        R->>R: verify expected state
+    end
+    R-->>C: outcome code + evidence (JSONL, screenshots, trace)`,
+
+            infrastructure: `flowchart TB
+    subgraph Docker["Docker Compose"]
+        API["Control API\nFastAPI :8000"]
+        WK["Replay Worker\nPlaywright"]
+        CH["Chromium\nCDP :9222"]
+        OC["Operator Console"]
+        TA["Legacy App\nTenant A"]
+        TB["Legacy App\nTenant B (relabeled)"]
+    end
+    subgraph LLM["LLM Providers"]
+        OAI["OpenAI-compatible\nfree tier (dev)"]
+        ANT["Anthropic Claude\n(prod)"]
+    end
+    subgraph Evidence["Evidence Store"]
+        EV["17 replay scenarios\nJSONL + screenshots + traces"]
+    end
+    CI["CI\n131 tests incl. real browser"]
+
+    API --> WK
+    WK --> CH
+    CH --> TA
+    CH --> TB
+    OC -->|token handoff| CH
+    WK -.->|discovery only| OAI
+    WK -.->|discovery only| ANT
+    WK --> EV
+    CI -.-> WK`,
+
+            erDiagram: `erDiagram
+    ARTIFACT {
+        uuid id PK
+        string name
+        string version
+        jsonb inputs_schema
+        jsonb outputs_schema
+        string origin_allowlist
+        timestamp recorded_at
+    }
+    STEP {
+        uuid id PK
+        uuid artifact_id FK
+        int ordinal
+        string action
+        string rationale
+        string expected_state
+        boolean irreversible
+        enum risk_class
+    }
+    LOCATOR_STRATEGY {
+        uuid id PK
+        uuid step_id FK
+        int rank
+        string kind
+        string value
+    }
+    SECRET_REF {
+        uuid id PK
+        uuid artifact_id FK
+        string ref_name
+        string vault_key
+    }
+    RUN {
+        uuid id PK
+        uuid artifact_id FK
+        string tenant
+        enum outcome
+        int exit_code
+        boolean drift
+        timestamp started_at
+    }
+    RUN_EVENT {
+        uuid id PK
+        uuid run_id FK
+        uuid step_id FK
+        string observed_state
+        string screenshot_path
+        boolean redacted
+    }
+    HANDOFF {
+        uuid id PK
+        uuid run_id FK
+        uuid step_id FK
+        string token
+        string operator
+        boolean verified
+    }
+    ARTIFACT ||--o{ STEP : defines
+    STEP ||--o{ LOCATOR_STRATEGY : resolves_via
+    ARTIFACT ||--o{ SECRET_REF : references
+    ARTIFACT ||--o{ RUN : executed_as
+    RUN ||--o{ RUN_EVENT : logs
+    RUN ||--o{ HANDOFF : escalates`
+        }
+    },
+    {
+        id: '05',
         title: 'Plant Disease Detector',
         category: 'ML / Computer Vision',
         description: 'CNN model classifying 38 plant disease categories at 94% accuracy, deployed on AWS EC2 with Streamlit.',
@@ -376,7 +901,7 @@ export const projects: Project[] = [
         tech: ['TensorFlow', 'Keras', 'Python', 'AWS EC2', 'Streamlit', 'OpenCV'],
         year: '2024',
         status: 'Live',
-        image: '/plant-disease-mockup.png',
+        image: '/plant-disease-viz.png',
         github: 'https://github.com/Rohit-Lahori02',
         live: null,
         impact: ['94% Accuracy', '38 Disease Categories', 'Real-Time Classification', 'AWS Deployed'],
