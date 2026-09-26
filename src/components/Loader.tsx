@@ -234,7 +234,7 @@ const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
           </div>
           <div className="hidden md:block">
             <span className="block opacity-50">Location</span>
-            <span>Chicago, IL</span>
+            <span>San Francisco, CA</span>
           </div>
           <div className="hidden md:block">
             <span className="block opacity-50">Mode</span>

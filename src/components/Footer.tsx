@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setTime(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'America/Chicago' }));
+      setTime(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' }));
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
@@ -58,8 +58,8 @@ const Footer: React.FC = () => {
             </p>
           </div>
           <div className="mt-12 md:mt-0 font-mono text-xs uppercase text-gray-400">
-            <div className="mb-1">Based in Chicago, IL</div>
-            <div className="text-black dark:text-white">{time} CST</div>
+            <div className="mb-1">Based in San Francisco, CA</div>
+            <div className="text-black dark:text-white">{time}</div>
           </div>
         </div>
 
